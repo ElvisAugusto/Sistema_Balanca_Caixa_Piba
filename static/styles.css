@@ -1,0 +1,181 @@
+/* Estilos para resetar padrões e configurar a fonte */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+
+/* Estilos para o corpo da página */
+body {
+  background: #001399; /* Cor de fundo */
+  background-size: cover; /* Cobrir toda a área do corpo */
+  color: #fff; /* Cor do texto */
+  display: flex; /* Alinhar conteúdo ao centro verticalmente e horizontalmente */
+  justify-content: center;
+  align-items: flex-start; /* Alinhar conteúdo no início verticalmente */
+  height: 100vh; /* Altura total da viewport */
+  margin: 0;
+}
+
+/* Estilos para o container principal */
+.login-container {
+  position: relative;
+  width: 100%;
+  max-width: 400px; /* Largura máxima do container */
+  padding: 3%;
+  box-sizing: border-box; /* Box-sizing para incluir padding na largura total */
+  box-shadow: 0 15px 25px rgba(0, 0, 0, .6); /* Sombra */
+  border-radius: 20px; /* Bordas arredondadas */
+  background-color: rgba(0, 0, 0, 0.75); /* Background semitransparente para contraste */
+
+}
+
+/* Estilos para o cabeçalho */
+header {
+  text-align: center;
+  margin-bottom: 20px; /* Espaçamento inferior */
+}
+
+/* Estilos para o logotipo */
+.logo {
+  display: block;
+  margin: 0 auto 20px; /* Centralizar e adicionar espaço inferior */
+  width: 150px; /* Largura do logotipo */
+  height: auto; /* Altura automática */
+}
+
+/* Estilos para os títulos */
+h2 {
+  margin: 0 0 30px; /* Espaçamento inferior */
+  padding: 0;
+}
+
+/* Estilos para os campos de entrada e seleção */
+.user-box {
+  margin-bottom: 30px; /* Espaçamento inferior */
+}
+
+.user-box input,
+.user-box select {
+  width: 100%;
+  padding: 10px 0;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.user-box label {
+  font-size: 16px;
+  color: #fff;
+  display: block;
+  margin-bottom: 5px; /* Espaçamento inferior do rótulo */
+}
+
+.user-box input:focus ~ label,
+.user-box input:valid ~ label,
+.user-box select:focus ~ label,
+.user-box select:valid ~ label {
+  color: #03e9f4;
+}
+
+/* Ajustes para campos lado a lado */
+.input-group {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px; /* Espaçamento entre os campos */
+}
+
+.input-group .user-box {
+  flex: 1; /* Fazer os elementos filhos flexíveis */
+}
+
+/* Estilos para os links */
+form a {
+  color: #f0ff04;
+  text-decoration: none;
+}
+
+form a:hover {
+  color: #fff;
+  border-radius: 5px;
+}
+
+/* Estilos para os botões */
+.botao {
+  background-color: transparent;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+  border-radius: 5px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+  width: 100%; /* Largura total */
+  font-size: 16px;
+}
+
+.botao:hover {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+/* Estilos para mensagens de erro */
+.error-message {
+  color: red;
+  margin-top: 10px;
+}
+
+.flash-messages {
+    color: red;
+}
+
+@media (max-width: 768px) {
+  .login-container {
+    width: 90%; /* Largura reduzida para telas menores */
+    padding: 6%; /* Preenchimento interno padrão */
+  }
+
+  .input-group {
+    flex-direction: row; /* Manter os campos lado a lado */
+    gap: 15px; /* Espaçamento entre os campos */
+  }
+
+  .input-group .user-box {
+    margin-bottom: 10; /* Remover o espaçamento inferior */
+  }
+
+  .input-group .user-box input,
+  .input-group .user-box select {
+    margin-bottom: 1
+
+
+    0; /* Remover o espaçamento inferior */
+  }
+}
+.mic-button {
+    background-color: transparent;
+    color: #ffffff;
+    border: 2px solid #ffffff;
+    padding: 5px;
+    border-radius: 50%; /* Botão circular */
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+}
+
+.mic-button:hover {
+    background-color: #357ae8; /* Cor ao passar o mouse */
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    transform: scale(1.1); /* Leve aumento ao passar o mouse */
+}
+
+.mic-button:active {
+    background-color: #2c65cc; /* Cor ao clicar */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transform: scale(0.95); /* Leve redução ao clicar */
+}
+
+svg {
+    fill: white; /* Cor do ícone */
+    width: 25px;
+    height: 25px;
+}

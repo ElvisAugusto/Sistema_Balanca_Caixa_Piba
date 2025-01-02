@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <!-- Metadados do documento -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caixa</title>
+    <!-- Link para o arquivo CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Container principal -->
+    <div class="login-container">
+        <!-- Cabeçalho -->
+        <header>
+            <!-- Logo -->
+            <img src="{{ url_for('static', filename='piba.png') }}" alt="logo" class="logo">
+            <!-- Título -->
+            <h2>Caixa</h2>
+        </header>
+        <!-- Conteúdo principal -->
+        <main>
+            <!-- Formulário para operações de caixa -->
+            <form action="{{ url_for('caixa') }}" method="post" id="buscarForm">
+                <!-- Token CSRF para segurança -->
+                {{ form.csrf_token }}
+                <div class="user-box">
+                    <div>
+                        <!-- Instrução -->
+                        <p>Pesquisar por ID ou nome:</p>
+                        <p>{{ form.id_refeicao.label }}</p>
+                        <!-- Campo para entrada do ID da refeição -->
+                        {{ form.id_refeicao(id="id_refeicao", value= 0, type="number",) }}
+                    </div>
+                    <div>
+                        <!-- Instrução -->
+                        <p>{{ form.nome_comanda.label }}</p>
+                        <!-- Campo para entrada do nome da comanda -->
+                        {{ form.nome_comanda(id="nome_comanda", value="Insira o nome", type="text", pattern="[A-Za-zÀ-ÖØ-öø-ÿ\s]*") }}
+                        <button type="button" class="mic-button" onclick="iniciarReconhecimentoVoz()">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5.002 5.002 0 0 1-4 4.9V19h3a1 1 0 1 1 0 2h-8a1 1 0 1 1 0-2h3v-2.1a5.002 5.002 0 0 1-4-4.9 1 1 0 1 1 2 0 3 3 0 1 0 6 0 1 1 0 1 1 2 0z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <!-- Botão para buscar o ID -->
+                    {{ form.buscar(class="botao") }}
+                </div>
+                <!-- Exibição de mensagens flash -->
+                <div>
+                    <!-- Mensagens flash -->
+                    {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                            <div class="flash-messages">
+                                {% for message in messages %}
+                                    <p>{{ message }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+                </div>
+                <div class="user-box">
+                    <!-- Campo para seleção da forma de pagamento -->
+                    <p>{{ form.forma_pagamento.label }}</p>
+                    {{ form.forma_pagamento(class="form-control") }}
+                </div>
+                <!-- Grupo de botões de ação -->
+                <div class="button-group">
+                    {{ form.realizar_pagamento(class="botao") }}
+                    {{ form.cancelar(class="botao") }}
+                    {{ form.voltar_menu(class="botao") }}
+                </div>
+            </form>
+        </main>
+    </div>
+    <!-- Biblioteca Font Awesome -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+    <!-- Script JavaScript para controle dos campos de entrada -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Função para adicionar comportamento de restauração de valor padrão
+            function addRestoreBehavior(input, defaultValue) {
+                input.addEventListener('focus', function() {
+                    if (input.value === defaultValue) {
+                        input.value = '';
+                    }
+                });
+
+                input.addEventListener('blur', function() {
+                    if (input.value === '') {
+                        input.value = defaultValue;
+                    }
+                });
+            }
+
+            // Controle do campo de ID da refeição
+            var idRefeicaoInput = document.getElementById('id_refeicao');
+            addRestoreBehavior(idRefeicaoInput, '0');
+
+            idRefeicaoInput.addEventListener('input', function() {
+                idRefeicaoInput.value = idRefeicaoInput.value.replace(/\D/g, '');
+            });
+
+            // Controle do campo nome_comanda
+            var nomeComandaInput = document.getElementById('nome_comanda');
+            addRestoreBehavior(nomeComandaInput, 'Insira o nome');
+
+            nomeComandaInput.addEventListener('input', function() {
+                var regex = /[^a-zA-ZÀ-ÖØ-öø-ÿ\s]/g;
+                nomeComandaInput.value = nomeComandaInput.value.replace(regex, '');
+            });
+        });
+        function iniciarReconhecimentoVoz() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert("Seu navegador não suporta a API de Reconhecimento de Fala.");
+                return;
+            }
+
+            const reconhecimento = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            reconhecimento.lang = 'pt-BR';
+            reconhecimento.start();
+
+            reconhecimento.onresult = function(event) {
+                const texto = event.results[0][0].transcript;
+                document.getElementById('nome_comanda').value = texto;
+            };
+
+            reconhecimento.onerror = function(event) {
+                console.error("Erro no reconhecimento de fala: ", event.error);
+            };
+
+            reconhecimento.onend = function() {
+                console.log("Reconhecimento de fala finalizado.");
+            };
+        }
+    </script>
+</body>
+</html>

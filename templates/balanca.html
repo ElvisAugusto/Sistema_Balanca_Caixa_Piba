@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <!-- Configurações do documento -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Balança</title>
+    <!-- Link para o arquivo CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="login-container">
+        <!-- Cabeçalho -->
+        <header>
+            <!-- Logo -->
+            <img src="{{ url_for('static', filename='piba.png') }}" alt="logo" class="logo">
+            <!-- Título -->
+            <h2>Balança</h2>
+        </header>
+        <!-- Conteúdo principal -->
+        <main>
+            <!-- Formulário -->
+            <form action="{{ url_for('add_value') }}" method="post" id="valorForm">
+                {{ form.csrf_token }}
+                <div class="user-box">
+                    <!-- Campo de entrada para valor da refeição -->
+                    <div>
+                        <p>{{ form.id_comanda.label }}</p>
+                        {{ form.id_comanda(value=id_existente, id="id_comanda", type="number", min="1") }}
+                    </div>
+                    <div>
+                        <p>{{ form.nome_comanda.label }}</p>
+                        {{ form.nome_comanda(value=nome_comanda, type="text", id="nome_comanda", pattern="[A-Za-zÀ-ÖØ-öø-ÿ\s]*") }}
+                         <button type="button" class="mic-button" onclick="iniciarReconhecimentoVoz()">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5.002 5.002 0 0 1-4 4.9V19h3a1 1 0 1 1 0 2h-8a1 1 0 1 1 0-2h3v-2.1a5.002 5.002 0 0 1-4-4.9 1 1 0 1 1 2 0 3 3 0 1 0 6 0 1 1 0 1 1 2 0z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div>
+                        <p>{{ form.valor_refeicao.label }}</p>
+                        {{ form.valor_refeicao(id="valor", value="0,00", type="text") }}
+                    </div>
+                </div>
+                <!-- Campo de seleção de bebidas e quantidade -->
+                <div class="input-group">
+                    <div class="user-box">
+                        <p>{{ form.tipo_bebida.label }}</p>
+                        {{ form.tipo_bebida(id="bebida") }}
+                    </div>
+                    <div class="user-box">
+                        <p>{{ form.quantidade_bebida.label }}</p>
+                        {{ form.quantidade_bebida(id="quantidade_bebida", value="0", type="number") }}
+                    </div>
+                </div>
+
+                <!-- Seção de exibição dos itens adicionados -->
+                <section>
+                    {% if refeicao %}
+                        <h3>Refeições: </h3>
+                        <ul>
+                            {% for numero, valor in refeicao.items() %}
+                                <li>{{ numero }}: {{ valor }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    {% if bebida %}
+                        <h3>Bebidas:</h3>
+                        <ul>
+                            {% for tipo, bebida_info in bebida.items() %}
+                                {% set formatted_value = "%.2f"|format(bebida_info[1]) %}
+                                <li>{{ tipo }} x {{ bebida_info[0] }} : R$ {{ formatted_value.replace('.', ',') }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    {% if valor %}
+                        <h3>Total: {{ valor }}</h3>
+                    {% endif %}
+                </section>
+                <div>
+                    <!-- Mensagens flash -->
+                    {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                            <div class="flash-messages">
+                                {% for message in messages %}
+                                    <p>{{ message }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+                </div>
+                <!-- Grupo de botões -->
+                <div class="button-group">
+                    {{ form.adicionar(class="botao") }}
+                    {{ form.confirmar(class="botao") }}
+                    {{ form.limpar(class="botao") }}
+                    {{ form.voltar_menu(class="botao") }}
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <!-- Script JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Função para adicionar comportamento de restaurar valor original aos inputs de número e valor
+            function addRestoreBehavior(input, defaultValue) {
+                // Ao focar, limpa o campo se estiver com o valor padrão
+                input.addEventListener('focus', function() {
+                    if (input.value === defaultValue) {
+                        input.value = '';
+                    }
+                });
+
+                // Ao perder o foco, restaura o valor padrão se o campo estiver vazio
+                input.addEventListener('blur', function() {
+                    if (input.value === '') {
+                        input.value = defaultValue;
+                    }
+                });
+
+                // Manipula o input enquanto o usuário digita
+                input.addEventListener('input', function() {
+                    // Se for o campo 'valor', formata para moeda
+                    if (input.id === 'valor') {
+                        var inputValue = input.value.replace(/\D/g, '');
+                        var formattedInput = '';
+
+                        // Remove zeros à esquerda
+                        inputValue = inputValue.replace(/^0+/, '');
+
+                        // Formata o valor como moeda
+                        if (inputValue.length > 2) {
+                            formattedInput = inputValue.slice(0, -2).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ',' + inputValue.slice(-2);
+                        } else if (inputValue.length > 1) {
+                            formattedInput = '0,' + inputValue;
+                        } else if (inputValue.length === 1) {
+                            formattedInput = '0,0' + inputValue;
+                        } else {
+                            formattedInput = '';
+                        }
+                        input.value = formattedInput;
+                    } else if (input.id === 'id_comanda') {
+                        // Se for o campo 'id_comanda', faz requisição AJAX para buscar o nome correspondente
+                        var idExistente = parseInt("{{ id_existente }}"); // Converte para inteiro
+                        var inputValue = parseInt(input.value);
+
+                        // Valida o valor inserido
+                        if (isNaN(inputValue) || inputValue < 0 || inputValue > idExistente) {
+                            input.value = defaultValue; // Restaura o valor padrão se inválido
+                        } else {
+                            // Requisição AJAX para buscar o nome da comanda
+                            fetch(`/get_nome_comanda?id_comanda=${inputValue}`)
+                                .then(response => response.json())
+                                .then(data => {
+                                    document.getElementById('nome_comanda').value = data.nome_comanda; // Define o valor do campo 'nome_comanda'
+                                });
+                        }
+                    } else {
+                        // Para outros campos, garante que sejam números inteiros positivos
+                        if (!/^\d*$/.test(input.value)) {
+                            input.value = input.value.replace(/[^\d]/g, '');
+                        }
+                    }
+                });
+            }
+
+            // Adiciona comportamento de restauração aos inputs de número e 'valor'
+            var numericInputs = document.querySelectorAll('input[type="number"], #valor');
+            numericInputs.forEach(function(input) {
+                // Chama a função para restaurar o valor original
+                addRestoreBehavior(input, input.value);
+            });
+
+            // Evento de envio do formulário
+            document.getElementById('valorForm').addEventListener('submit', function(event) {
+                var valorInput = document.getElementById('valor');
+                var valor = valorInput.value.replace(/\./g, '').replace(',', '.');
+                if (isNaN(valor) || valor.trim() === '') {
+                    // Alerta se o valor não for válido
+                    alert('Por favor, insira um valor numérico válido.');
+                    event.preventDefault(); // Impede o envio do formulário se o valor não for válido
+                } else {
+                    // Converte e fixa o valor para 2 casas decimais
+                    valorInput.value = parseFloat(valor).toFixed(2);
+                }
+            });
+
+            // Adiciona comportamento ao campo 'nome_comanda'
+            var nomeComandaInput = document.getElementById('nome_comanda');
+            var nomeComandaOriginalValue = nomeComandaInput.value;
+
+            // Limpa o campo ao focar se estiver com o valor padrão
+            nomeComandaInput.addEventListener('focus', function() {
+                if (nomeComandaInput.value === nomeComandaOriginalValue) {
+                    nomeComandaInput.value = '';
+                }
+            });
+
+            // Restaura o valor padrão se o campo estiver vazio ao perder o foco
+            nomeComandaInput.addEventListener('blur', function() {
+                if (nomeComandaInput.value === '') {
+                    nomeComandaInput.value = nomeComandaOriginalValue;
+                }
+            });
+
+            // Valida e formata o valor inserido no campo 'nome_comanda'
+            nomeComandaInput.addEventListener('input', function() {
+                var regex = /[^a-zA-ZÀ-ÖØ-öø-ÿ\s]/g;
+                if (regex.test(nomeComandaInput.value)) {
+                    nomeComandaInput.value = nomeComandaInput.value.replace(regex, '');
+                }
+            });
+        });
+        function iniciarReconhecimentoVoz() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert("Seu navegador não suporta a API de Reconhecimento de Fala.");
+                return;
+            }
+
+            const reconhecimento = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            reconhecimento.lang = 'pt-BR';
+            reconhecimento.start();
+
+            reconhecimento.onresult = function(event) {
+                const texto = event.results[0][0].transcript;
+                document.getElementById('nome_comanda').value = texto;
+            };
+
+            reconhecimento.onerror = function(event) {
+                console.error("Erro no reconhecimento de fala: ", event.error);
+            };
+
+            reconhecimento.onend = function() {
+                console.log("Reconhecimento de fala finalizado.");
+            };
+        }
+    </script>
+</body>
+</html>

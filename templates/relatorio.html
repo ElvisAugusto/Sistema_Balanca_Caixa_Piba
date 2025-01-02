@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório</title>
+    <!-- Link para o arquivo CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <!-- Cabeçalho -->
+        <header>
+            <!-- Logo -->
+            <img src="{{ url_for('static', filename='piba.png') }}" alt="logo" class="logo">
+            <!-- Título -->
+            <h2>Relatório</h2>
+        </header>
+        <!-- Conteúdo principal -->
+        <main>
+            <!-- Formulário para gerar relatório -->
+            <form action="{{ url_for('relatorio') }}" method="post">
+                <!-- Token CSRF para segurança -->
+                {{ form.csrf_token }}
+                <div class="user-box">
+                    <!-- Campo Data Inicial -->
+                    {{ form.data_inicial.label }}
+                    <!-- Input para seleção de data e hora -->
+                    {{ form.data_inicial(type="datetime-local", value=form.data_inicial.data.strftime('%Y-%m-%dT%H:%M'), id="data_inicial") }}
+                    <!-- Exibição de erros -->
+                    {% if form.data_inicial.errors %}
+                        {% for error in form.data_inicial.errors %}
+                            <span class="error">{{ error }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="user-box">
+                    <!-- Campo Data Final -->
+                    {{ form.data_final.label }}
+                    <!-- Input para seleção de data e hora -->
+                    {{ form.data_final(type="datetime-local", value=form.data_final.data.strftime('%Y-%m-%dT%H:%M'), id="data_final") }}
+                    <!-- Exibição de erros -->
+                    {% if form.data_final.errors %}
+                        {% for error in form.data_final.errors %}
+                            <span class="error">{{ error }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                    <!-- Botões de ação -->
+                <div class="button-group">
+                    {{ form.gerar_relatorio(class="botao", onclick="abrePDF()") }}
+                    {{ form.voltar_menu(class="botao") }}
+                </div>
+            </form>
+        </main>
+        <!-- Rodapé -->
+        <footer>
+            <!-- Mensagens flash -->
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for message in messages %}
+                            <p>{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+        </footer>
+    </div>
+    <!-- Script JavaScript para controle de datas -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var dataInicialInput = document.getElementById('data_inicial');
+            var dataFinalInput = document.getElementById('data_final');
+
+            dataInicialInput.addEventListener('change', function() {
+                // Garante que a data final seja posterior à data inicial
+                if (dataFinalInput.value && dataFinalInput.value < dataInicialInput.value) {
+                    dataFinalInput.value = dataInicialInput.value;
+                }
+                // Define a data mínima para a data final como a data inicial
+                dataFinalInput.min = dataInicialInput.value;
+            });
+
+            dataFinalInput.addEventListener('change', function() {
+                // Garante que a data final seja posterior à data inicial
+                if (dataFinalInput.value < dataInicialInput.value) {
+                    dataFinalInput.value = dataInicialInput.value;
+                }
+            });
+        });
+        function abrePDF() {
+            setTimeout(function() {
+                window.open('http://sistemapiba.sa-east-1.elasticbeanstalk.com/static/Relatorio.pdf', '_blank', 'width=800,height=600');
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

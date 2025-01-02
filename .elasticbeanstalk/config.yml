@@ -1,0 +1,7 @@
+option_settings:
+  aws:elasticbeanstalk:application:environment:
+    ENV_VARIABLE_NAME: "value"
+  aws:elasticbeanstalk:container:python:
+    WSGIPath: application:application
+  aws:elasticbeanstalk:environment:process:default:
+    HealthCheckPath: "/health"

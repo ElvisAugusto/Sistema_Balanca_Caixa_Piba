@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <!-- Metadados do documento -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário de Login</title>
+    <!-- Link para o arquivo CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <!-- Cabeçalho -->
+        <header>
+            <!-- Logo -->
+            <img src="{{ url_for('static', filename='piba.png') }}" alt="logo" class="logo">
+            <!-- Título -->
+            <h2>Login</h2>
+        </header>
+        <!-- Conteúdo principal -->
+        <main>
+            <!-- Formulário de login -->
+            <form method="post">
+                <!-- Token CSRF para segurança -->
+                {{ form.csrf_token }}
+                <!-- Campo de entrada de e-mail -->
+                <div class="user-box">
+                    {{ form.email.label }}
+                    {{ form.email(placeholder="Digite o email") }}<br>
+                </div>
+                <div class="user-box">
+                    {{ form.senha.label }}
+                    {{ form.senha(placeholder="Digite a senha") }}
+                </div>
+                <div>
+                    <!-- Botão de login -->
+                    {{ form.entrar(class="botao") }}
+                </div>
+            </form>
+        </main>
+        <!-- Rodapé -->
+        <footer>
+            <!-- Link para página de cadastro -->
+            <br>
+            <p>Não tem uma conta? <a href="{{ url_for('cadastrar') }}">Cadastre-se</a></p>
+            <div>
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <div class="flash-messages">
+                            {% for message in messages %}
+                                <p>{{ message }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

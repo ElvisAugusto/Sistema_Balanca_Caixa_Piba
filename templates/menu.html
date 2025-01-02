@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <!-- Metadados do documento -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu</title>
+    <!-- Link para o arquivo CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <!-- Container principal -->
+    <div class="login-container">
+        <!-- Cabeçalho -->
+        <header>
+            <!-- Logo -->
+            <img src="{{ url_for('static', filename='piba.png') }}" alt="logo" class="logo">
+            <!-- Título -->
+            <h2>Bem-vindo ao sistema de balança da PIBA</h2>
+        </header>
+        <!-- Conteúdo principal -->
+        <main>
+            <!-- Instrução -->
+            <p>Escolha uma opção:</p>
+            <!-- Formulário com botões -->
+            <form method="POST">
+                {{ form.hidden_tag() }}
+                <!-- Token CSRF para segurança -->
+                {{ form.csrf_token }}
+                <div class="button-group">
+                    {{ form.botaoBalanca(class="botao") }}
+                    {{ form.botaoCaixa(class="botao") }}
+                    {{ form.botaoRelatorio(class="botao") }}
+                    {{ form.botaoLogout(class="botao") }}
+                </div>
+            </form>
+        </main>
+    </div>
+</body>
+</html>
